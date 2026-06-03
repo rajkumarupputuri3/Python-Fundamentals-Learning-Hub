@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Fundamentals Learning Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --py-blue: #3776AB;
+  --py-blue-light: #4B9FD5;
+  --py-blue-dark: #1E4D72;
+  --py-yellow: #FFD43B;
+  --py-yellow-dim: #b8973a;
+  --bg: #050A0F;
+  --bg2: #080E15;
+  --bg3: #0D1520;
+  --surface: rgba(255,255,255,0.04);
+  --surface2: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(55,118,171,0.3);
+  --text: #E8F4FD;
+  --text-dim: #8BA9BE;
+  --text-muted: #4A6A7E;
+  --code-bg: #060C14;
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-lg: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ─────────────────────────────────── */
+#cursor { position: fixed; width: 8px; height: 8px; background: var(--py-yellow); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .2s, height .2s, opacity .2s; }
+#cursor-ring { position: fixed; width: 36px; height: 36px; border: 1.5px solid rgba(255,212,59,.4); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: transform .12s ease, width .2s, height .2s, opacity .2s; }
+
+/* ── LOADING ───────────────────────────────────────── */
+#loader {
+  position: fixed; inset: 0; background: var(--bg); z-index: 99999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+  transition: opacity .6s, visibility .6s;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+.loader-logo { font-family: 'Space Mono', monospace; font-size: 56px; color: var(--py-yellow); text-shadow: 0 0 40px rgba(255,212,59,.5); animation: pulse 1.4s ease-in-out infinite; }
+.loader-bar-wrap { width: 200px; height: 2px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden; }
+.loader-bar { height: 100%; background: linear-gradient(90deg, var(--py-blue), var(--py-yellow)); border-radius: 2px; animation: loadbar 2.2s ease forwards; }
+.loader-text { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-muted); letter-spacing: 3px; text-transform: uppercase; }
+@keyframes loadbar { from { width: 0 } to { width: 100% } }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+/* ── PROGRESS BAR ──────────────────────────────────── */
+#progress-bar { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(90deg, var(--py-blue), var(--py-yellow)); z-index: 9000; width: 0; transition: width .1s; }
+
+/* ── NAV ───────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 8000;
+  padding: 0 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 68px;
+  border-bottom: 1px solid transparent;
+  transition: background .3s, border-color .3s, backdrop-filter .3s;
+}
+nav.scrolled { background: rgba(5,10,15,.85); backdrop-filter: blur(20px); border-color: var(--border); }
+.nav-logo { font-family: 'Space Mono', monospace; font-size: 15px; color: var(--py-yellow); display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo span { color: var(--text-dim); }
+.nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+.nav-links a { font-size: 13px; color: var(--text-dim); text-decoration: none; letter-spacing: .5px; transition: color .2s; }
+.nav-links a:hover { color: var(--py-yellow); }
+.nav-cta { font-family: 'Space Mono', monospace; font-size: 12px; padding: 10px 22px; background: var(--py-yellow); color: #000; border: none; border-radius: var(--radius-sm); cursor: pointer; text-decoration: none; letter-spacing: .5px; transition: opacity .2s, transform .2s; }
+.nav-cta:hover { opacity: .85; transform: translateY(-1px); }
+
+/* ── PARTICLES ─────────────────────────────────────── */
+#particles-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .6; }
+
+/* ── HERO ──────────────────────────────────────────── */
+.hero {
+  min-height: 100vh; position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 120px 24px 80px;
+}
+.hero-eyebrow {
+  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--py-yellow); margin-bottom: 28px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero-eyebrow::before, .hero-eyebrow::after { content:''; display:block; width:40px; height:1px; background: var(--py-yellow); opacity:.5; }
+.hero-title {
+  font-family: 'Syne', sans-serif; font-size: clamp(40px, 7vw, 96px);
+  font-weight: 800; line-height: 1.0; letter-spacing: -2px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #fff 0%, var(--py-blue-light) 50%, var(--py-yellow) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-sub { font-size: 18px; color: var(--text-dim); max-width: 520px; margin: 0 auto 48px; line-height: 1.7; font-weight: 300; }
+.hero-btns { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.btn-primary {
+  font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: .5px;
+  padding: 16px 36px; background: var(--py-yellow); color: #000; border: none;
+  border-radius: var(--radius-sm); cursor: pointer; text-decoration: none;
+  transition: all .25s; position: relative; overflow: hidden;
+}
+.btn-primary::after { content:''; position: absolute; inset: 0; background: rgba(255,255,255,0); transition: background .2s; }
+.btn-primary:hover::after { background: rgba(255,255,255,.15); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,212,59,.35); }
+.btn-secondary {
+  font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: .5px;
+  padding: 16px 36px; background: transparent; color: var(--text);
+  border: 1px solid var(--border2); border-radius: var(--radius-sm);
+  cursor: pointer; text-decoration: none; transition: all .25s;
+}
+.btn-secondary:hover { border-color: var(--py-blue-light); background: rgba(55,118,171,.1); transform: translateY(-2px); }
+
+.hero-stats { display: flex; gap: 48px; margin-top: 80px; flex-wrap: wrap; justify-content: center; }
+.stat { text-align: center; }
+.stat-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--py-yellow); }
+.stat-label { font-size: 12px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+/* ── FLOATING 3D CUBES ─────────────────────────────── */
+.cube-scene { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.cube { position: absolute; width: 60px; height: 60px; transform-style: preserve-3d; animation: floatCube linear infinite; opacity: .15; }
+.cube-face { position: absolute; width: 60px; height: 60px; border: 1px solid var(--py-blue); background: rgba(55,118,171,.05); }
+.cube-face.front  { transform: translateZ(30px); }
+.cube-face.back   { transform: rotateY(180deg) translateZ(30px); }
+.cube-face.left   { transform: rotateY(-90deg) translateZ(30px); }
+.cube-face.right  { transform: rotateY(90deg) translateZ(30px); }
+.cube-face.top    { transform: rotateX(90deg) translateZ(30px); }
+.cube-face.bottom { transform: rotateX(-90deg) translateZ(30px); }
+@keyframes floatCube { 0%{ transform: translateY(0) rotateX(0) rotateY(0); } 100%{ transform: translateY(-120px) rotateX(360deg) rotateY(360deg); } }
+
+/* ── SECTION COMMON ────────────────────────────────── */
+section { position: relative; z-index: 1; }
+.section-inner { max-width: 1100px; margin: 0 auto; padding: 100px 24px; }
+.section-label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--py-yellow); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+.section-label::before { content:''; display:block; width:24px; height:1px; background: var(--py-yellow); }
+.section-title { font-family: 'Syne', sans-serif; font-size: clamp(28px, 4vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: -1px; margin-bottom: 16px; }
+.section-desc { font-size: 16px; color: var(--text-dim); line-height: 1.8; max-width: 620px; font-weight: 300; }
+
+/* ── GLASS CARD ────────────────────────────────────── */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  backdrop-filter: blur(12px);
+  transition: transform .3s, box-shadow .3s, border-color .3s;
+}
+.glass-card:hover { transform: translateY(-4px); box-shadow: 0 24px 60px rgba(0,0,0,.4); border-color: var(--border2); }
+.tilt-card { transform-style: preserve-3d; }
+
+/* ── DIVIDER ───────────────────────────────────────── */
+.section-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border2), transparent); margin: 0 24px; }
+
+/* ── TOPIC GRID ────────────────────────────────────── */
+.topics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 56px; }
+.topic-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  cursor: pointer; text-decoration: none; color: inherit;
+  transition: all .3s; display: block; position: relative; overflow: hidden;
+}
+.topic-card::before { content:''; position:absolute; inset:0; background: linear-gradient(135deg, var(--py-blue), transparent); opacity:0; transition: opacity .3s; }
+.topic-card:hover { border-color: var(--py-blue); transform: translateY(-6px); box-shadow: 0 20px 50px rgba(55,118,171,.2); }
+.topic-card:hover::before { opacity:.05; }
+.topic-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--py-yellow); letter-spacing: 2px; margin-bottom: 16px; }
+.topic-icon { font-size: 32px; margin-bottom: 16px; display: block; }
+.topic-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.topic-brief { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+/* ── INSTALLATION SECTION ──────────────────────────── */
+#installation { background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%); }
+.timeline { margin-top: 56px; position: relative; }
+.timeline::before { content:''; position: absolute; left: 28px; top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, var(--py-blue), var(--py-yellow), transparent); }
+.tl-item { display: flex; gap: 32px; margin-bottom: 48px; position: relative; }
+.tl-dot { width: 56px; height: 56px; min-width: 56px; border-radius: 50%; background: var(--bg3); border: 2px solid var(--py-blue); display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 13px; color: var(--py-yellow); position: relative; z-index: 1; transition: all .3s; }
+.tl-item:hover .tl-dot { background: var(--py-blue); border-color: var(--py-yellow); }
+.tl-content { padding-top: 12px; flex: 1; }
+.tl-content h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.tl-content p { font-size: 14px; color: var(--text-dim); line-height: 1.7; margin-bottom: 16px; }
+.tl-badge { display: inline-block; font-family: 'Space Mono', monospace; font-size: 10px; padding: 4px 10px; background: rgba(55,118,171,.2); border: 1px solid var(--border2); border-radius: 20px; color: var(--py-blue-light); letter-spacing: 1px; }
+
+/* ── CODE BLOCK ────────────────────────────────────── */
+.code-wrap { position: relative; margin: 20px 0; border-radius: var(--radius-sm); overflow: hidden; }
+.code-header { background: rgba(255,255,255,.04); border-bottom: 1px solid var(--border); padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; }
+.code-dots { display: flex; gap: 6px; }
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.code-dot:nth-child(1) { background: #FF5F57; }
+.code-dot:nth-child(2) { background: #FEBC2E; }
+.code-dot:nth-child(3) { background: #28C840; }
+.code-lang { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+.copy-btn { font-family: 'Space Mono', monospace; font-size: 10px; padding: 5px 12px; background: rgba(55,118,171,.2); border: 1px solid var(--border2); border-radius: 4px; color: var(--py-blue-light); cursor: pointer; letter-spacing: 1px; transition: all .2s; }
+.copy-btn:hover { background: var(--py-blue); color: #fff; }
+.copy-btn.copied { background: rgba(40,200,64,.2); border-color: rgba(40,200,64,.4); color: #28C840; }
+pre {
+  background: var(--code-bg);
+  padding: 24px 20px;
+  overflow-x: auto;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #abb2bf;
+}
+.kw { color: #c678dd; }
+.fn { color: #61afef; }
+.str { color: #98c379; }
+.num { color: #d19a66; }
+.cm { color: #5c6370; font-style: italic; }
+.op { color: #56b6c2; }
+.var { color: #e06c75; }
+
+/* ── VARIABLES SECTION ─────────────────────────────── */
+#variables { background: var(--bg2); }
+.vars-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 48px; }
+.var-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; transition: all .3s; }
+.var-card:hover { border-color: var(--py-yellow); background: rgba(255,212,59,.03); }
+.var-card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.var-card-title .badge { font-family: 'Space Mono', monospace; font-size: 10px; padding: 3px 8px; background: rgba(255,212,59,.15); border-radius: 20px; color: var(--py-yellow); }
+.rule-list { list-style: none; }
+.rule-list li { font-size: 13px; color: var(--text-dim); padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; gap: 8px; line-height: 1.6; }
+.rule-list li:last-child { border-bottom: none; }
+.rule-list li::before { content: '→'; color: var(--py-blue-light); font-family: 'Space Mono', monospace; font-size: 11px; margin-top: 2px; }
+
+/* ── DATA TYPES TABLE ──────────────────────────────── */
+#datatypes { background: var(--bg); }
+.dt-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin-top: 48px; }
+.dt-table thead th { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); }
+.dt-table tbody tr { background: var(--surface); transition: all .25s; cursor: default; }
+.dt-table tbody tr:hover { background: var(--surface2); transform: translateX(4px); }
+.dt-table td { padding: 16px 20px; font-size: 13px; color: var(--text-dim); }
+.dt-table td:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); font-family: 'Space Mono', monospace; color: var(--py-yellow); font-size: 14px; }
+.dt-table td:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.dt-type-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-family: 'Space Mono', monospace; font-size: 11px; background: rgba(55,118,171,.15); border: 1px solid rgba(55,118,171,.3); color: var(--py-blue-light); }
+
+/* ── IO SECTION ────────────────────────────────────── */
+#io { background: var(--bg2); }
+.io-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+@media (max-width: 700px) { .io-demo { grid-template-columns: 1fr; } }
+.io-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.io-card-head { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.io-icon { font-size: 20px; }
+.io-card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+.io-body { padding: 24px; }
+.output-box { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; font-family: 'Space Mono', monospace; font-size: 13px; color: #98c379; margin-top: 12px; }
+.output-box::before { content: '$ '; color: var(--text-muted); }
+
+/* ── TYPE CASTING ──────────────────────────────────── */
+#casting { background: var(--bg); }
+.cast-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 48px; }
+.cast-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+.cast-fn { font-family: 'Space Mono', monospace; font-size: 22px; color: var(--py-yellow); font-weight: 700; margin-bottom: 8px; }
+.cast-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 20px; line-height: 1.6; }
+.cast-example { display: flex; align-items: center; gap: 12px; font-family: 'Space Mono', monospace; font-size: 13px; }
+.cast-before { color: var(--text-muted); background: var(--code-bg); padding: 8px 14px; border-radius: var(--radius-sm); }
+.cast-arrow { color: var(--py-blue-light); font-size: 18px; }
+.cast-after { color: #98c379; background: var(--code-bg); padding: 8px 14px; border-radius: var(--radius-sm); }
+
+/* ── COMMENTS SECTION ──────────────────────────────── */
+#comments { background: var(--bg2); }
+.comment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px; }
+@media (max-width: 700px) { .comment-grid { grid-template-columns: 1fr; } }
+
+/* ── CALCULATOR ────────────────────────────────────── */
+#calculator { background: var(--bg); }
+.calc-layout { display: grid; grid-template-columns: 1fr 380px; gap: 40px; margin-top: 56px; align-items: start; }
+@media (max-width: 900px) { .calc-layout { grid-template-columns: 1fr; } }
+.calc-info h3 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+.calc-info p { font-size: 14px; color: var(--text-dim); line-height: 1.8; margin-bottom: 20px; }
+.calc-steps { list-style: none; counter-reset: step; }
+.calc-steps li { counter-increment: step; padding: 14px 0 14px 52px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-dim); position: relative; line-height: 1.6; }
+.calc-steps li::before { content: counter(step); position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; background: rgba(55,118,171,.15); border: 1px solid var(--border2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--py-blue-light); }
+.calc-ui {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,.6);
+}
+.calc-display {
+  background: var(--code-bg); padding: 24px 20px 16px;
+  text-align: right; border-bottom: 1px solid var(--border);
+}
+.calc-history { font-size: 12px; color: var(--text-muted); font-family: 'Space Mono', monospace; min-height: 18px; margin-bottom: 8px; }
+.calc-val { font-family: 'Space Mono', monospace; font-size: 36px; color: var(--py-yellow); word-break: break-all; }
+.calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); }
+.calc-btn {
+  background: var(--bg3); border: none; padding: 20px; font-family: 'Space Mono', monospace;
+  font-size: 16px; color: var(--text); cursor: pointer; transition: background .15s, color .15s;
+}
+.calc-btn:hover { background: var(--surface2); }
+.calc-btn:active { background: rgba(55,118,171,.3); }
+.calc-btn.op-key { color: var(--py-blue-light); }
+.calc-btn.eq-key { background: var(--py-yellow); color: #000; grid-column: span 2; }
+.calc-btn.eq-key:hover { background: #e8c02a; }
+.calc-btn.clear { color: #FF5F57; }
+.calc-btn.zero { grid-column: span 2; }
+
+/* ── QUIZ SECTION ──────────────────────────────────── */
+#quiz { background: var(--bg2); }
+.quiz-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; max-width: 720px; }
+.quiz-q { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 24px; line-height: 1.4; }
+.quiz-q span { color: var(--py-yellow); font-family: 'Space Mono', monospace; }
+.quiz-opts { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt {
+  padding: 14px 20px; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; color: var(--text-dim);
+  transition: all .2s; display: flex; align-items: center; gap: 12px;
+  font-family: 'Space Mono', monospace;
+}
+.quiz-opt:hover { border-color: var(--py-blue); color: var(--text); }
+.quiz-opt.correct { border-color: #28C840; background: rgba(40,200,64,.1); color: #28C840; }
+.quiz-opt.wrong { border-color: #FF5F57; background: rgba(255,95,87,.1); color: #FF5F57; }
+.quiz-opt-label { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--py-blue-light); flex-shrink: 0; }
+.quiz-feedback { margin-top: 20px; padding: 14px 20px; border-radius: var(--radius-sm); font-size: 14px; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: rgba(40,200,64,.1); border: 1px solid rgba(40,200,64,.3); color: #28C840; }
+.quiz-feedback.bad { background: rgba(255,95,87,.1); border: 1px solid rgba(255,95,87,.3); color: #FF5F57; }
+.quiz-nav { display: flex; gap: 12px; margin-top: 24px; }
+
+/* ── TIPS SECTION ──────────────────────────────────── */
+#tips { background: var(--bg); }
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 48px; }
+.tip-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; border-top: 3px solid var(--py-blue); transition: all .3s; }
+.tip-card:nth-child(even) { border-top-color: var(--py-yellow); }
+.tip-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+.tip-icon { font-size: 28px; margin-bottom: 16px; }
+.tip-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+.tip-text { font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+/* ── FAQ SECTION ───────────────────────────────────── */
+#faq { background: var(--bg2); }
+.faq-list { margin-top: 48px; max-width: 720px; }
+.faq-item { border-bottom: 1px solid var(--border); }
+.faq-q { padding: 22px 0; font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: color .2s; }
+.faq-q:hover { color: var(--py-yellow); }
+.faq-chevron { color: var(--text-muted); transition: transform .3s; flex-shrink: 0; }
+.faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--py-yellow); }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .4s ease; }
+.faq-a-inner { padding: 0 0 20px; font-size: 14px; color: var(--text-dim); line-height: 1.8; }
+
+/* ── FOOTER ────────────────────────────────────────── */
+footer {
+  background: var(--bg3); border-top: 1px solid var(--border);
+  padding: 60px 24px 32px; text-align: center; position: relative; z-index: 1;
+}
+.footer-logo { font-family: 'Space Mono', monospace; font-size: 18px; color: var(--py-yellow); margin-bottom: 16px; }
+.footer-desc { font-size: 13px; color: var(--text-muted); max-width: 400px; margin: 0 auto 32px; line-height: 1.7; }
+.footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+.footer-links a { font-size: 12px; color: var(--text-muted); text-decoration: none; transition: color .2s; }
+.footer-links a:hover { color: var(--py-yellow); }
+.footer-copy { font-size: 11px; color: var(--text-muted); font-family: 'Space Mono', monospace; letter-spacing: 1px; }
+.footer-facts { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 40px; }
+.fact-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 16px; font-size: 12px; color: var(--text-dim); }
+.fact-chip strong { color: var(--py-yellow); }
+
+/* ── SCROLL ANIMATIONS ─────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-left { opacity: 0; transform: translateX(-32px); transition: opacity .7s ease, transform .7s ease; }
+.reveal-left.visible { opacity: 1; transform: none; }
+
+/* ── SCROLLBAR ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--py-blue-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--py-blue); }
+
+/* ── RESPONSIVE ────────────────────────────────────── */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 100px 20px 60px; }
+  .section-inner { padding: 72px 20px; }
+  .calc-layout { grid-template-columns: 1fr; }
+}
+
+/* ── TOPIC PROGRESS ────────────────────────────────── */
+.tracker { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 48px; }
+.tracker-item { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 8px 16px; font-size: 12px; transition: all .3s; cursor: pointer; }
+.tracker-item.done { background: rgba(40,200,64,.1); border-color: rgba(40,200,64,.4); color: #28C840; }
+.tracker-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: background .3s; }
+.tracker-item.done .tracker-dot { background: #28C840; }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- PROGRESS BAR -->
+<div id="progress-bar"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">{ }</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div class="loader-text">Initializing Python Hub...</div>
+</div>
+
+<!-- PARTICLES -->
+<canvas id="particles-canvas"></canvas>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a class="nav-logo" href="#">{ Py } <span>Learning Hub</span></a>
+  <ul class="nav-links">
+    <li><a href="#overview">Topics</a></li>
+    <li><a href="#installation">Install</a></li>
+    <li><a href="#variables">Variables</a></li>
+    <li><a href="#datatypes">Data Types</a></li>
+    <li><a href="#calculator">Calculator</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+  <a class="nav-cta" href="#overview">Start Learning →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="cube-scene" id="cube-scene"></div>
+  <div class="hero-eyebrow">Python Fundamentals 2025</div>
+  <h1 class="hero-title">Python Fundamentals<br>Learning Hub</h1>
+  <p class="hero-sub">Master Python from zero to hero. Interactive lessons, live code examples, and hands-on projects designed for absolute beginners.</p>
+  <div class="hero-btns">
+    <a href="#overview" class="btn-primary">Start Learning →</a>
+    <a href="#quiz" class="btn-secondary">Take the Quiz</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">Topics</div></div>
+    <div class="stat"><div class="stat-num">30+</div><div class="stat-label">Code Examples</div></div>
+    <div class="stat"><div class="stat-num">1</div><div class="stat-label">Real Project</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Possibilities</div></div>
+  </div>
+</section>
+
+<!-- OVERVIEW -->
+<div class="section-divider"></div>
+<section id="overview">
+  <div class="section-inner">
+    <div class="section-label reveal">Course Map</div>
+    <h2 class="section-title reveal">Everything You'll Learn</h2>
+    <p class="section-desc reveal">A structured path from installation to building your first real Python project.</p>
+
+    <div class="tracker reveal" id="progress-tracker">
+      <div class="tracker-item" data-topic="installation" onclick="markDone(this)"><div class="tracker-dot"></div>Installation</div>
+      <div class="tracker-item" data-topic="variables" onclick="markDone(this)"><div class="tracker-dot"></div>Variables</div>
+      <div class="tracker-item" data-topic="datatypes" onclick="markDone(this)"><div class="tracker-dot"></div>Data Types</div>
+      <div class="tracker-item" data-topic="io" onclick="markDone(this)"><div class="tracker-dot"></div>Input / Output</div>
+      <div class="tracker-item" data-topic="casting" onclick="markDone(this)"><div class="tracker-dot"></div>Type Casting</div>
+      <div class="tracker-item" data-topic="comments" onclick="markDone(this)"><div class="tracker-dot"></div>Comments</div>
+      <div class="tracker-item" data-topic="calc" onclick="markDone(this)"><div class="tracker-dot"></div>Calculator Project</div>
+    </div>
+
+    <div class="topics-grid" style="margin-top: 40px;">
+      <a href="#installation" class="topic-card reveal">
+        <div class="topic-num">01</div>
+        <span class="topic-icon">🐍</span>
+        <div class="topic-name">Python Installation</div>
+        <div class="topic-brief">Get Python running on your machine in minutes.</div>
+      </a>
+      <a href="#variables" class="topic-card reveal">
+        <div class="topic-num">02</div>
+        <span class="topic-icon">📦</span>
+        <div class="topic-name">Variables</div>
+        <div class="topic-brief">Store and label data using Python variables.</div>
+      </a>
+      <a href="#datatypes" class="topic-card reveal">
+        <div class="topic-num">03</div>
+        <span class="topic-icon">🔢</span>
+        <div class="topic-name">Data Types</div>
+        <div class="topic-brief">int, float, str, bool, list, tuple, set, dict.</div>
+      </a>
+      <a href="#io" class="topic-card reveal">
+        <div class="topic-num">04</div>
+        <span class="topic-icon">💬</span>
+        <div class="topic-name">Input & Output</div>
+        <div class="topic-brief">Interact with users through input() and print().</div>
+      </a>
+      <a href="#casting" class="topic-card reveal">
+        <div class="topic-num">05</div>
+        <span class="topic-icon">🔄</span>
+        <div class="topic-name">Type Casting</div>
+        <div class="topic-brief">Convert between types with int(), float(), str().</div>
+      </a>
+      <a href="#comments" class="topic-card reveal">
+        <div class="topic-num">06</div>
+        <span class="topic-icon">💡</span>
+        <div class="topic-name">Comments</div>
+        <div class="topic-brief">Write human-readable notes inside your code.</div>
+      </a>
+      <a href="#calculator" class="topic-card reveal">
+        <div class="topic-num">07</div>
+        <span class="topic-icon">🧮</span>
+        <div class="topic-name">Calculator Project</div>
+        <div class="topic-brief">Build a fully functional calculator from scratch.</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- INSTALLATION -->
+<section id="installation">
+  <div class="section-inner">
+    <div class="section-label reveal">Topic 01</div>
+    <h2 class="section-title reveal">Python Installation</h2>
+    <p class="section-desc reveal">Python is a high-level, interpreted programming language known for its clean syntax and readability. It powers everything from web development to machine learning.</p>
+
+    <div class="timeline">
+      <div class="tl-item reveal">
+        <div class="tl-dot">01</div>
+        <div class="tl-content">
+          <h3>Visit python.org</h3>
+          <p>Head to <strong style="color:var(--py-yellow)">python.org/downloads</strong> and download the latest stable version of Python for your operating system.</p>
+          <span class="tl-badge">Windows / macOS / Linux</span>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-dot">02</div>
+        <div class="tl-content">
+          <h3>Run the Installer</h3>
+          <p>On Windows, check <em>"Add Python to PATH"</em> before clicking Install. This is the most commonly missed step for beginners.</p>
+          <span class="tl-badge">Critical Step</span>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-dot">03</div>
+        <div class="tl-content">
+          <h3>Verify Installation</h3>
+          <p>Open a terminal / command prompt and type:</p>
+          <div class="code-wrap">
+            <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">bash</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+            <pre>python --version</pre>
+          </div>
+          <span class="tl-badge">Expected: Python 3.x.x</span>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-dot">04</div>
+        <div class="tl-content">
+          <h3>Install VS Code</h3>
+          <p>Download Visual Studio Code from <strong style="color:var(--py-yellow)">code.visualstudio.com</strong> — the best free editor for Python beginners.</p>
+          <span class="tl-badge">Free IDE</span>
+        </div>
+      </div>
+      <div class="tl-item reveal">
+        <div class="tl-dot">05</div>
+        <div class="tl-content">
+          <h3>Install Python Extension</h3>
+          <p>Inside VS Code, press <strong style="color:var(--py-yellow)">Ctrl+Shift+X</strong>, search for "Python" by Microsoft, and install it. You're ready to code!</p>
+          <span class="tl-badge">🎉 Setup Complete</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:40px">
+      <h3 style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px;">Your First Python File</h3>
+      <div class="code-wrap">
+        <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="cm"># hello.py — your very first Python program</span>
+<span class="fn">print</span>(<span class="str">"Hello, World!"</span>)
+<span class="fn">print</span>(<span class="str">"Welcome to Python 🐍"</span>)</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- VARIABLES -->
+<section id="variables">
+  <div class="section-inner">
+    <div class="section-label reveal">Topic 02</div>
+    <h2 class="section-title reveal">Variables</h2>
+    <p class="section-desc reveal">Variables are named containers that store data values. In Python, you don't need to declare the type — it's inferred automatically.</p>
+
+    <div class="vars-grid">
+      <div class="var-card reveal">
+        <div class="var-card-title">Naming Rules <span class="badge">Important</span></div>
+        <ul class="rule-list">
+          <li>Must start with a letter or underscore</li>
+          <li>Can contain letters, digits, underscores</li>
+          <li>Case-sensitive: <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">age</code> ≠ <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">Age</code></li>
+          <li>Cannot use reserved keywords like <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">if</code>, <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">for</code></li>
+          <li>Use <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">snake_case</code> by convention</li>
+        </ul>
+      </div>
+      <div class="var-card reveal">
+        <div class="var-card-title">Assignment</div>
+        <div class="code-wrap">
+          <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="cm"># Assigning values to variables</span>
+<span class="var">name</span> = <span class="str">"Alice"</span>
+<span class="var">age</span> = <span class="num">20</span>
+<span class="var">gpa</span> = <span class="num">3.85</span>
+<span class="var">is_student</span> = <span class="kw">True</span>
+
+<span class="cm"># Multiple assignment</span>
+<span class="var">x</span>, <span class="var">y</span>, <span class="var">z</span> = <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span></pre>
+        </div>
+      </div>
+      <div class="var-card reveal">
+        <div class="var-card-title">Valid vs Invalid</div>
+        <div class="code-wrap">
+          <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="cm"># ✅ Valid names</span>
+<span class="var">user_name</span> = <span class="str">"Bob"</span>
+<span class="var">_private</span> = <span class="num">42</span>
+<span class="var">score2</span> = <span class="num">100</span>
+
+<span class="cm"># ❌ Invalid names</span>
+<span class="cm"># 2score = 100     (starts with digit)</span>
+<span class="cm"># my-name = "x"   (hyphen not allowed)</span>
+<span class="cm"># for = 5         (reserved keyword)</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- DATA TYPES -->
+<section id="datatypes">
+  <div class="section-inner">
+    <div class="section-label reveal">Topic 03</div>
+    <h2 class="section-title reveal">Data Types</h2>
+    <p class="section-desc reveal">Python has several built-in data types that define the kind of value a variable can hold.</p>
+
+    <table class="dt-table reveal">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Category</th>
+          <th>Example</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>int</td><td><span class="dt-type-badge">Numeric</span></td><td style="font-family:'Space Mono',monospace;color:#98c379">x = 42</td><td>Whole numbers, positive or negative</td></tr>
+        <tr><td>float</td><td><span class="dt-type-badge">Numeric</span></td><td style="font-family:'Space Mono',monospace;color:#98c379">pi = 3.14</td><td>Decimal point numbers</td></tr>
+        <tr><td>str</td><td><span class="dt-type-badge">Text</span></td><td style="font-family:'Space Mono',monospace;color:#98c379">name = "Python"</td><td>Sequence of characters in quotes</td></tr>
+        <tr><td>bool</td><td><span class="dt-type-badge">Boolean</span></td><td style="font-family:'Space Mono',monospace;color:#98c379">flag = True</td><td>True or False values</td></tr>
+        <tr><td>list</td><td><span class="dt-type-badge">Sequence</span></td><td style="font-family:'Space Mono',monospace;color:#98c379">[1, 2, 3]</td><td>Ordered, mutable collection</td></tr>
+        <tr><td>tuple</td><td><span class="dt-type-badge">Sequence</span></td><td style="font-family:'Space Mono',monospace;color:#98c379">(1, 2, 3)</td><td>Ordered, immutable collection</td></tr>
+        <tr><td>set</td><td><span class="dt-type-badge">Set</span></td><td style="font-family:'Space Mono',monospace;color:#98c379">{1, 2, 3}</td><td>Unordered collection, no duplicates</td></tr>
+        <tr><td>dict</td><td><span class="dt-type-badge">Mapping</span></td><td style="font-family:'Space Mono',monospace;color:#98c379">{"key": "val"}</td><td>Key-value pairs</td></tr>
+      </tbody>
+    </table>
+
+    <div class="reveal" style="margin-top:40px;">
+      <div class="code-wrap">
+        <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <pre><span class="cm"># Checking data types with type()</span>
+<span class="var">x</span> = <span class="num">100</span>
+<span class="var">y</span> = <span class="num">3.14</span>
+<span class="var">name</span> = <span class="str">"Python"</span>
+<span class="var">fruits</span> = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"cherry"</span>]
+
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">x</span>))      <span class="cm"># &lt;class 'int'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">y</span>))      <span class="cm"># &lt;class 'float'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">name</span>))   <span class="cm"># &lt;class 'str'&gt;</span>
+<span class="fn">print</span>(<span class="fn">type</span>(<span class="var">fruits</span>)) <span class="cm"># &lt;class 'list'&gt;</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- INPUT / OUTPUT -->
+<section id="io">
+  <div class="section-inner">
+    <div class="section-label reveal">Topic 04</div>
+    <h2 class="section-title reveal">Input & Output</h2>
+    <p class="section-desc reveal">Python uses <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">print()</code> to display output and <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">input()</code> to receive user input.</p>
+
+    <div class="io-demo">
+      <div class="io-card reveal">
+        <div class="io-card-head">
+          <span class="io-icon">📤</span>
+          <div class="io-card-title">print() — Output</div>
+        </div>
+        <div class="io-body">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;line-height:1.7;">Displays text, variables, and expressions to the console.</p>
+          <div class="code-wrap">
+            <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+            <pre><span class="var">name</span> = <span class="str">"Alice"</span>
+<span class="var">age</span> = <span class="num">20</span>
+
+<span class="cm"># Basic print</span>
+<span class="fn">print</span>(<span class="str">"Hello, World!"</span>)
+
+<span class="cm"># f-string formatting</span>
+<span class="fn">print</span>(<span class="str">f"Name: <span class="op">{</span><span class="var">name</span><span class="op">}</span>, Age: <span class="op">{</span><span class="var">age</span><span class="op">}</span>"</span>)
+
+<span class="cm"># sep and end options</span>
+<span class="fn">print</span>(<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>, sep=<span class="str">"-"</span>)</pre>
+          </div>
+          <div class="output-box">Hello, World!<br>Name: Alice, Age: 20<br>a-b-c</div>
+        </div>
+      </div>
+      <div class="io-card reveal">
+        <div class="io-card-head">
+          <span class="io-icon">📥</span>
+          <div class="io-card-title">input() — Input</div>
+        </div>
+        <div class="io-body">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;line-height:1.7;">Pauses execution and waits for the user to type something. Always returns a <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">str</code>.</p>
+          <div class="code-wrap">
+            <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+            <pre><span class="cm"># Basic input</span>
+<span class="var">name</span> = <span class="fn">input</span>(<span class="str">"Enter your name: "</span>)
+<span class="fn">print</span>(<span class="str">f"Hello, <span class="op">{</span><span class="var">name</span><span class="op">}</span>!"</span>)
+
+<span class="cm"># Converting input to number</span>
+<span class="var">age</span> = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter your age: "</span>))
+<span class="fn">print</span>(<span class="str">f"Next year: <span class="op">{</span><span class="var">age</span> + <span class="num">1</span><span class="op">}</span>"</span>)</pre>
+          </div>
+          <div class="output-box" style="color:var(--text-dim);">Enter your name: <span style="color:#98c379">Alice</span><br>Hello, Alice!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TYPE CASTING -->
+<section id="casting">
+  <div class="section-inner">
+    <div class="section-label reveal">Topic 05</div>
+    <h2 class="section-title reveal">Type Casting</h2>
+    <p class="section-desc reveal">Type casting converts a value from one data type to another using built-in functions.</p>
+
+    <div class="cast-grid">
+      <div class="cast-card reveal">
+        <div class="cast-fn">int()</div>
+        <div class="cast-desc">Converts a value to an integer. Truncates decimals — does not round.</div>
+        <div class="cast-example">
+          <span class="cast-before">"42"</span>
+          <span class="cast-arrow">→</span>
+          <span class="cast-after">42</span>
+        </div>
+        <div class="code-wrap" style="margin-top:16px;">
+          <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="fn">int</span>(<span class="str">"42"</span>)    <span class="cm"># → 42</span>
+<span class="fn">int</span>(<span class="num">3.99</span>)   <span class="cm"># → 3</span>
+<span class="fn">int</span>(<span class="kw">True</span>)   <span class="cm"># → 1</span></pre>
+        </div>
+      </div>
+      <div class="cast-card reveal">
+        <div class="cast-fn">float()</div>
+        <div class="cast-desc">Converts a value to a floating-point (decimal) number.</div>
+        <div class="cast-example">
+          <span class="cast-before">"3.14"</span>
+          <span class="cast-arrow">→</span>
+          <span class="cast-after">3.14</span>
+        </div>
+        <div class="code-wrap" style="margin-top:16px;">
+          <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="fn">float</span>(<span class="str">"3.14"</span>) <span class="cm"># → 3.14</span>
+<span class="fn">float</span>(<span class="num">5</span>)     <span class="cm"># → 5.0</span>
+<span class="fn">float</span>(<span class="kw">False</span>) <span class="cm"># → 0.0</span></pre>
+        </div>
+      </div>
+      <div class="cast-card reveal">
+        <div class="cast-fn">str()</div>
+        <div class="cast-desc">Converts any value to its string representation.</div>
+        <div class="cast-example">
+          <span class="cast-before">100</span>
+          <span class="cast-arrow">→</span>
+          <span class="cast-after">"100"</span>
+        </div>
+        <div class="code-wrap" style="margin-top:16px;">
+          <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="fn">str</span>(<span class="num">100</span>)    <span class="cm"># → "100"</span>
+<span class="fn">str</span>(<span class="num">3.14</span>)   <span class="cm"># → "3.14"</span>
+<span class="fn">str</span>(<span class="kw">True</span>)   <span class="cm"># → "True"</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- COMMENTS -->
+<section id="comments">
+  <div class="section-inner">
+    <div class="section-label reveal">Topic 06</div>
+    <h2 class="section-title reveal">Comments</h2>
+    <p class="section-desc reveal">Comments are ignored by Python's interpreter. They're notes for humans — you and your future self.</p>
+
+    <div class="comment-grid">
+      <div class="reveal">
+        <h3 style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px;">Single-Line Comments</h3>
+        <p style="font-size:13px;color:var(--text-dim);line-height:1.7;margin-bottom:20px;">Use the <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">#</code> symbol. Everything after it on that line is a comment.</p>
+        <div class="code-wrap">
+          <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="cm"># This is a single-line comment</span>
+<span class="var">x</span> = <span class="num">5</span>  <span class="cm"># Inline comment</span>
+
+<span class="cm"># Comments help explain your logic</span>
+<span class="var">total</span> = <span class="var">x</span> * <span class="num">2</span>  <span class="cm"># Multiply x by 2</span></pre>
+        </div>
+      </div>
+      <div class="reveal">
+        <h3 style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px;">Multi-Line Comments</h3>
+        <p style="font-size:13px;color:var(--text-dim);line-height:1.7;margin-bottom:20px;">Use triple quotes <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">"""..."""</code> for multi-line notes (technically a string literal, but used as a comment).</p>
+        <div class="code-wrap">
+          <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="str">"""
+This is a multi-line comment.
+It can span multiple lines.
+Great for function documentation.
+"""</span>
+
+<span class="kw">def</span> <span class="fn">add</span>(<span class="var">a</span>, <span class="var">b</span>):
+    <span class="str">"""Returns the sum of a and b."""</span>
+    <span class="kw">return</span> <span class="var">a</span> + <span class="var">b</span></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CALCULATOR PROJECT -->
+<section id="calculator">
+  <div class="section-inner">
+    <div class="section-label reveal">Practice Project</div>
+    <h2 class="section-title reveal">Simple Calculator</h2>
+    <p class="section-desc reveal">Put everything together to build your first complete Python program. This project uses variables, data types, input/output, type casting, and comments.</p>
+
+    <div class="calc-layout">
+      <div class="calc-info reveal">
+        <h3>Project Breakdown</h3>
+        <p>This calculator takes two numbers and an operator from the user and performs the calculation. It's a perfect first project because it exercises all the fundamentals in one program.</p>
+        <ol class="calc-steps">
+          <li>Display a welcome message using <code style="color:var(--py-yellow);font-family:'Space Mono',monospace">print()</code></li>
+          <li>Get first number from user with <code style="color:var(--py-yellow);font-family:'Space Mono',monospace">input()</code></li>
+          <li>Get second number from user</li>
+          <li>Get the operator (+, -, *, /)</li>
+          <li>Cast string inputs to <code style="color:var(--py-yellow);font-family:'Space Mono',monospace">float</code></li>
+          <li>Use <code style="color:var(--py-yellow);font-family:'Space Mono',monospace">if-elif-else</code> to pick operation</li>
+          <li>Print the result</li>
+        </ol>
+
+        <div class="code-wrap" style="margin-top:28px;">
+          <div class="code-header"><div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div><span class="code-lang">python</span><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+          <pre><span class="cm"># Simple Calculator — Python Project</span>
+
+<span class="fn">print</span>(<span class="str">"=== Simple Calculator ==="</span>)
+
+<span class="cm"># Get inputs from user</span>
+<span class="var">num1</span> = <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">"Enter first number: "</span>))
+<span class="var">num2</span> = <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">"Enter second number: "</span>))
+<span class="var">op</span> = <span class="fn">input</span>(<span class="str">"Enter operator (+, -, *, /): "</span>)
+
+<span class="cm"># Perform the calculation</span>
+<span class="kw">if</span> <span class="var">op</span> == <span class="str">"+"</span>:
+    <span class="var">result</span> = <span class="var">num1</span> + <span class="var">num2</span>
+<span class="kw">elif</span> <span class="var">op</span> == <span class="str">"-"</span>:
+    <span class="var">result</span> = <span class="var">num1</span> - <span class="var">num2</span>
+<span class="kw">elif</span> <span class="var">op</span> == <span class="str">"*"</span>:
+    <span class="var">result</span> = <span class="var">num1</span> * <span class="var">num2</span>
+<span class="kw">elif</span> <span class="var">op</span> == <span class="str">"/"</span>:
+    <span class="kw">if</span> <span class="var">num2</span> != <span class="num">0</span>:
+        <span class="var">result</span> = <span class="var">num1</span> / <span class="var">num2</span>
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">"Error: Division by zero!"</span>)
+        <span class="var">result</span> = <span class="kw">None</span>
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Invalid operator!"</span>)
+    <span class="var">result</span> = <span class="kw">None</span>
+
+<span class="cm"># Show result</span>
+<span class="kw">if</span> <span class="var">result</span> <span class="kw">is not</span> <span class="kw">None</span>:
+    <span class="fn">print</span>(<span class="str">f"Result: <span class="op">{</span><span class="var">num1</span><span class="op">}</span> <span class="op">{</span><span class="var">op</span><span class="op">}</span> <span class="op">{</span><span class="var">num2</span><span class="op">}</span> = <span class="op">{</span><span class="var">result</span><span class="op">}</span>"</span>)</pre>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE CALCULATOR UI -->
+      <div class="calc-ui reveal">
+        <div class="calc-display">
+          <div class="calc-history" id="calc-history"></div>
+          <div class="calc-val" id="calc-val">0</div>
+        </div>
+        <div class="calc-keys">
+          <button class="calc-btn clear" onclick="calcAction('clear')">AC</button>
+          <button class="calc-btn op-key" onclick="calcAction('+/-')">+/-</button>
+          <button class="calc-btn op-key" onclick="calcAction('%')">%</button>
+          <button class="calc-btn op-key" onclick="calcAction('÷')">÷</button>
+
+          <button class="calc-btn" onclick="calcAction('7')">7</button>
+          <button class="calc-btn" onclick="calcAction('8')">8</button>
+          <button class="calc-btn" onclick="calcAction('9')">9</button>
+          <button class="calc-btn op-key" onclick="calcAction('×')">×</button>
+
+          <button class="calc-btn" onclick="calcAction('4')">4</button>
+          <button class="calc-btn" onclick="calcAction('5')">5</button>
+          <button class="calc-btn" onclick="calcAction('6')">6</button>
+          <button class="calc-btn op-key" onclick="calcAction('-')">−</button>
+
+          <button class="calc-btn" onclick="calcAction('1')">1</button>
+          <button class="calc-btn" onclick="calcAction('2')">2</button>
+          <button class="calc-btn" onclick="calcAction('3')">3</button>
+          <button class="calc-btn op-key" onclick="calcAction('+')">+</button>
+
+          <button class="calc-btn zero" onclick="calcAction('0')">0</button>
+          <button class="calc-btn" onclick="calcAction('.')">.</button>
+          <button class="calc-btn eq-key" onclick="calcAction('=')">=</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="section-inner">
+    <div class="section-label reveal">Test Yourself</div>
+    <h2 class="section-title reveal">Quick Quiz</h2>
+    <p class="section-desc reveal" style="margin-bottom:40px;">Check your understanding with a few quick questions.</p>
+    <div class="quiz-card reveal" id="quiz-container"></div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TIPS -->
+<section id="tips">
+  <div class="section-inner">
+    <div class="section-label reveal">Pro Tips</div>
+    <h2 class="section-title reveal">Tips & Tricks</h2>
+    <div class="tips-grid">
+      <div class="tip-card reveal">
+        <div class="tip-icon">⚡</div>
+        <div class="tip-title">Use f-strings</div>
+        <div class="tip-text">f-strings (Python 3.6+) are the fastest and most readable way to format strings. Prefer <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">f"Hello, {name}"</code> over concatenation.</div>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-icon">🔍</div>
+        <div class="tip-title">Use type() to Debug</div>
+        <div class="tip-text">When something doesn't work, wrap the value in <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">print(type(x))</code> to see exactly what type Python thinks it is.</div>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-icon">📝</div>
+        <div class="tip-title">Comment as You Go</div>
+        <div class="tip-text">Write comments before you write code. Explaining what you intend to do often reveals the logic before you even type it.</div>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-icon">🐍</div>
+        <div class="tip-title">Python is Indentation-Sensitive</div>
+        <div class="tip-text">Unlike most languages, Python uses indentation (4 spaces) to define code blocks. Inconsistent indentation causes <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">IndentationError</code>.</div>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-icon">🔢</div>
+        <div class="tip-title">input() Always Returns str</div>
+        <div class="tip-text">Even if the user types <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">42</code>, <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">input()</code> returns the string <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">"42"</code>. Always cast it if you need a number.</div>
+      </div>
+      <div class="tip-card reveal">
+        <div class="tip-icon">📚</div>
+        <div class="tip-title">Use the Python Docs</div>
+        <div class="tip-text">The official Python documentation at <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">docs.python.org</code> is thorough, accurate, and free. Make it your first stop.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-inner">
+    <div class="section-label reveal">FAQ</div>
+    <h2 class="section-title reveal">Frequently Asked Questions</h2>
+    <div class="faq-list" id="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do I need to know math to learn Python? <span class="faq-chevron">▾</span></div>
+        <div class="faq-a"><div class="faq-a-inner">No, you don't need advanced math. Basic arithmetic (addition, subtraction, multiplication, division) is sufficient for most beginner and intermediate Python programs. Math becomes more important if you go into data science or machine learning later on.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What's the difference between int and float? <span class="faq-chevron">▾</span></div>
+        <div class="faq-a"><div class="faq-a-inner"><code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">int</code> stores whole numbers like 5 or -100. <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">float</code> stores decimal numbers like 3.14 or -0.5. Division of two integers in Python 3 always returns a float.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I use Python without VS Code? <span class="faq-chevron">▾</span></div>
+        <div class="faq-a"><div class="faq-a-inner">Absolutely. You can use any text editor (Notepad, Sublime Text, Vim) or IDEs like PyCharm. VS Code is recommended for beginners because it's free, lightweight, and has excellent Python support via extensions.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Why does Python use indentation instead of brackets? <span class="faq-chevron">▾</span></div>
+        <div class="faq-a"><div class="faq-a-inner">Python's creator Guido van Rossum designed it this way to enforce readability. Indentation-based blocks eliminate the visual noise of curly braces <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">{}</code> and ensure code is always formatted consistently.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What happens if I try to add a string and a number? <span class="faq-chevron">▾</span></div>
+        <div class="faq-a"><div class="faq-a-inner">Python will throw a <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">TypeError</code>. You must explicitly cast one type to the other first: either <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">str(42)</code> to turn the number into a string, or <code style="font-family:'Space Mono',monospace;color:var(--py-yellow)">int("42")</code> to turn the string into a number.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">{ Py } Learning Hub</div>
+  <p class="footer-desc">A beautifully designed interactive course for Python beginners. Learn. Practice. Build. Repeat.</p>
+  <div class="footer-facts">
+    <div class="fact-chip">🐍 Python created in <strong>1991</strong></div>
+    <div class="fact-chip">⭐ Ranked <strong>#1</strong> language 2024</div>
+    <div class="fact-chip">🌍 Used by <strong>8.2M+</strong> developers</div>
+    <div class="fact-chip">📦 <strong>400k+</strong> packages on PyPI</div>
+  </div>
+  <div class="footer-links">
+    <a href="#overview">Topics</a>
+    <a href="#installation">Install</a>
+    <a href="#variables">Variables</a>
+    <a href="#datatypes">Data Types</a>
+    <a href="#calculator">Calculator</a>
+    <a href="#quiz">Quiz</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="footer-copy">Built with ❤️ by Rajkumar — Python Fundamentals Learning Hub | Creator & Publisher: Rajkumar</div>
+</footer>
+
+<script>
+// ── CURSOR ──────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+(function animRing() {
+  rx += (mx - rx) * 0.15; ry += (my - ry) * 0.15;
+  cursorRing.style.left = rx+'px'; cursorRing.style.top = ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a,button,.faq-q,.quiz-opt,.topic-card,.tl-item,.tracker-item').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width='14px'; cursor.style.height='14px'; cursorRing.style.width='56px'; cursorRing.style.height='56px'; cursorRing.style.borderColor='rgba(255,212,59,.6)'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width='8px'; cursor.style.height='8px'; cursorRing.style.width='36px'; cursorRing.style.height='36px'; cursorRing.style.borderColor='rgba(255,212,59,.4)'; });
+});
+
+// ── LOADER ──────────────────────────────────────────────
+window.addEventListener('load', () => { setTimeout(() => document.getElementById('loader').classList.add('hidden'), 2300); });
+
+// ── PROGRESS BAR ────────────────────────────────────────
+const pb = document.getElementById('progress-bar');
+document.addEventListener('scroll', () => {
+  const max = document.body.scrollHeight - window.innerHeight;
+  pb.style.width = (window.scrollY / max * 100) + '%';
+});
+
+// ── NAV SCROLL ──────────────────────────────────────────
+const nav = document.getElementById('main-nav');
+document.addEventListener('scroll', () => { nav.classList.toggle('scrolled', window.scrollY > 60); });
+
+// ── PARTICLES ───────────────────────────────────────────
+const canvas = document.getElementById('particles-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+
+function Particle() {
+  this.reset = function() {
+    this.x = Math.random() * W; this.y = Math.random() * H;
+    this.vx = (Math.random()-.5)*.4; this.vy = (Math.random()-.5)*.4;
+    this.r = Math.random() * 1.5 + .5; this.a = Math.random() * .5 + .1;
+  };
+  this.reset();
+}
+for (let i = 0; i < 90; i++) particles.push(new Particle());
+
+function drawParticles() {
+  ctx.clearRect(0,0,W,H);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0||p.x > W||p.y < 0||p.y > H) p.reset();
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle = `rgba(55,118,171,${p.a})`; ctx.fill();
+  });
+  // Connect nearby particles
+  particles.forEach((p, i) => { particles.slice(i+1).forEach(q => {
+    const d = Math.hypot(p.x-q.x, p.y-q.y);
+    if (d < 100) { ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(q.x,q.y); ctx.strokeStyle=`rgba(55,118,171,${.12*(1-d/100)})`; ctx.lineWidth=.6; ctx.stroke(); }
+  }); });
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ── FLOATING CUBES ──────────────────────────────────────
+const scene = document.getElementById('cube-scene');
+for (let i = 0; i < 6; i++) {
+  const cube = document.createElement('div');
+  cube.className = 'cube';
+  const size = 40 + Math.random()*60;
+  cube.style.cssText = `left:${Math.random()*90}%;top:${Math.random()*80+20}%;width:${size}px;height:${size}px;animation-duration:${10+Math.random()*15}s;animation-delay:${-Math.random()*10}s;`;
+  cube.innerHTML = ['front','back','left','right','top','bottom'].map(f=>`<div class="cube-face ${f}"></div>`).join('');
+  scene.appendChild(cube);
+}
+
+// ── TILT CARDS ──────────────────────────────────────────
+document.querySelectorAll('.glass-card,.var-card,.cast-card,.tip-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left)/r.width - .5;
+    const y = (e.clientY - r.top)/r.height - .5;
+    card.style.transform = `perspective(800px) rotateY(${x*8}deg) rotateX(${-y*8}deg) translateY(-4px)`;
+  });
+  card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+});
+
+// ── SCROLL REVEAL ───────────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(()=>e.target.classList.add('visible'), i*80); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal,.reveal-left').forEach(el => revealObserver.observe(el));
+
+// ── COPY BUTTONS ────────────────────────────────────────
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'COPIED!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── CALCULATOR ──────────────────────────────────────────
+let calcState = { display: '0', prev: null, op: null, fresh: true };
+function calcAction(key) {
+  const d = document.getElementById('calc-val');
+  const h = document.getElementById('calc-history');
+  const s = calcState;
+  if (key === 'clear') { s.display='0'; s.prev=null; s.op=null; s.fresh=true; h.textContent=''; }
+  else if (key === '+/-') { s.display = s.display.startsWith('-') ? s.display.slice(1) : '-'+s.display; }
+  else if (key === '%') { s.display = String(parseFloat(s.display)/100); }
+  else if (['+','−','-','×','÷','/'].includes(key)) {
+    s.prev = parseFloat(s.display); s.op = key; s.fresh = true;
+    h.textContent = `${s.prev} ${key}`;
+  }
+  else if (key === '=') {
+    if (s.prev === null || s.op === null) return;
+    const cur = parseFloat(s.display);
+    let res;
+    if (s.op === '+') res = s.prev + cur;
+    else if (s.op === '−' || s.op === '-') res = s.prev - cur;
+    else if (s.op === '×') res = s.prev * cur;
+    else if (s.op === '÷') res = cur !== 0 ? s.prev / cur : 'Error';
+    h.textContent = `${s.prev} ${s.op} ${cur} =`;
+    s.display = String(Math.round(res * 1e10)/1e10); s.prev=null; s.op=null; s.fresh=true;
+  }
+  else if (key === '.') {
+    if (s.fresh) { s.display='0.'; s.fresh=false; }
+    else if (!s.display.includes('.')) s.display += '.';
+  }
+  else {
+    if (s.fresh) { s.display = key; s.fresh=false; }
+    else { s.display = s.display === '0' ? key : s.display + key; }
+  }
+  d.textContent = s.display.length > 10 ? parseFloat(s.display).toExponential(3) : s.display;
+}
+
+// ── QUIZ ────────────────────────────────────────────────
+const quizData = [
+  { q: 'What does <span>type(3.14)</span> return?', opts: ["<class 'int'>","<class 'float'>","<class 'str'>","<class 'double'>"], correct: 1, exp: "3.14 is a floating-point number, so type() returns <class 'float'>." },
+  { q: 'Which of these is a valid Python variable name?', opts: ['2name','my-name','_name_','class'], correct: 2, exp: "_name_ is valid. 2name starts with a digit, my-name has a hyphen, and class is a reserved keyword." },
+  { q: 'What does <span>input()</span> always return?', opts: ['int','float','str','depends on what you type'], correct: 2, exp: "input() always returns a str (string), regardless of what the user types." },
+  { q: 'Which converts the string "99" to an integer?', opts: ['float("99")','str(99)','int("99")','convert("99")'], correct: 2, exp: 'int("99") correctly converts the string to the integer 99.' },
+  { q: 'How do you write a single-line comment in Python?', opts: ['// This is a comment','/* comment */','# This is a comment','-- comment'], correct: 2, exp: "Python uses the # symbol for single-line comments." },
+];
+let qIdx = 0, score = 0, answered = false;
+
+function renderQuiz() {
+  const c = document.getElementById('quiz-container');
+  const q = quizData[qIdx];
+  c.innerHTML = `
+    <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:2px;margin-bottom:20px;">QUESTION ${qIdx+1} OF ${quizData.length} &nbsp;·&nbsp; SCORE: ${score}</div>
+    <div class="quiz-q">Q${qIdx+1}. ${q.q}</div>
+    <div class="quiz-opts">
+      ${q.opts.map((o,i) => `<div class="quiz-opt" onclick="answerQuiz(${i})" id="opt-${i}"><div class="quiz-opt-label">${String.fromCharCode(65+i)}</div>${o}</div>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="quiz-fb"></div>
+    <div class="quiz-nav">
+      ${qIdx < quizData.length-1 ? '<button class="btn-secondary" id="quiz-next" style="display:none" onclick="nextQ()">Next Question →</button>' : '<button class="btn-secondary" id="quiz-next" style="display:none" onclick="showResult()">See Results →</button>'}
+    </div>
+  `;
+  answered = false;
+}
+
+function answerQuiz(i) {
+  if (answered) return;
+  answered = true;
+  const q = quizData[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o,j) => { o.style.pointerEvents='none'; if(j===q.correct) o.classList.add('correct'); });
+  const fb = document.getElementById('quiz-fb');
+  if (i === q.correct) { score++; opts[i].classList.add('correct'); fb.className='quiz-feedback show ok'; fb.textContent = '✓ Correct! '+q.exp; }
+  else { opts[i].classList.add('wrong'); fb.className='quiz-feedback show bad'; fb.textContent = '✗ Not quite. '+q.exp; }
+  document.getElementById('quiz-next').style.display='inline-flex';
+}
+
+function nextQ() { qIdx++; renderQuiz(); }
+function showResult() {
+  const c = document.getElementById('quiz-container');
+  const pct = Math.round(score/quizData.length*100);
+  const msg = pct===100?'Perfect score! You\'re a Python pro! 🏆':pct>=80?'Excellent! Almost there! 🎉':pct>=60?'Good job! Keep studying! 📚':'Keep practicing — you\'ll get it! 💪';
+  c.innerHTML = `<div style="text-align:center;padding:20px 0"><div style="font-family:'Syne',sans-serif;font-size:72px;font-weight:800;color:var(--py-yellow)">${pct}%</div><div style="font-size:16px;color:var(--text-dim);margin:16px 0">${score} / ${quizData.length} correct</div><div style="font-size:20px;font-family:'Syne',sans-serif;font-weight:700;margin-bottom:24px">${msg}</div><button class="btn-primary" onclick="qIdx=0;score=0;renderQuiz()">Retake Quiz</button></div>`;
+}
+
+renderQuiz();
+
+// ── FAQ TOGGLE ──────────────────────────────────────────
+function toggleFaq(el) {
+  const item = el.parentElement;
+  const ans = item.querySelector('.faq-a');
+  const open = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => { i.classList.remove('open'); i.querySelector('.faq-a').style.maxHeight='0'; });
+  if (!open) { item.classList.add('open'); ans.style.maxHeight = ans.scrollHeight + 'px'; }
+}
+
+// ── TOPIC TRACKER ───────────────────────────────────────
+function markDone(el) { el.classList.toggle('done'); }
+
+// ── MOUSE FOLLOW PARALLAX HERO ──────────────────────────
+const hero = document.querySelector('.hero');
+document.addEventListener('mousemove', e => {
+  if (!hero) return;
+  const rx = (e.clientX/window.innerWidth-.5)*10;
+  const ry = (e.clientY/window.innerHeight-.5)*10;
+  hero.querySelector('.hero-title').style.transform = `translate(${rx*.5}px,${ry*.5}px)`;
+});
+</script>
+</body>
+</html>
